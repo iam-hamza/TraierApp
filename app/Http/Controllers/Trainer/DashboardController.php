@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Hashing\BcryptHasher;
 
 class DashboardController extends Controller
 {
@@ -54,5 +57,34 @@ class DashboardController extends Controller
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
         return $randomString;
+    }
+    public function editProfile(){
+        $user= User::find(Auth::user()->id);
+        return response()->json(['user'=>$user]); 
+    }
+    public function updateProfile(Request $request){
+        $user= User::find($request->id)->update($request->all());
+        return response()->json(['updated']); 
+    }
+
+    public function updatePassword(Request $request){
+        $validator = Validator::make($request->all(), [ 
+            'password' => 'required',
+            'newPassword' => 'required',
+        ]);
+        if ($validator->fails()) { 
+            return response()->json(['error'=>$validator->errors()], 401);            
+        }
+        $user= User::find($request->id);
+        if (password_verify($request->password, $user->password)){ 
+           $password= bcrypt($request->newPassword);
+           $user->update([
+               'password'=>$password,
+           ]);
+           return response()->json('updated'); 
+        } 
+        else{ 
+            return response()->json(['error'=>'Unauthorised'], 401); 
+        } 
     }
 }

@@ -22,7 +22,7 @@ class User extends Authenticatable
     use HasRoles;
     use HasApiTokens;
 
-    protected $fillable = ['first_name','last_name','email', 'password', 'remember_token'];
+    protected $fillable = ['first_name','last_name','email', 'phone', 'password', 'remember_token'];
     
     
     /**
